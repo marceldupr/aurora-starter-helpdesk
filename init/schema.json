@@ -1,0 +1,182 @@
+{
+  "tables": [
+    {
+      "slug": "customers",
+      "name": "Customers",
+      "icon": "User",
+      "fields": [
+        { "slug": "name", "name": "Name", "field_type": "text", "required": true },
+        { "slug": "email", "name": "Email", "field_type": "text", "required": true },
+        { "slug": "phone", "name": "Phone", "field_type": "text", "required": false },
+        { "slug": "company", "name": "Company", "field_type": "text", "required": false }
+      ]
+    },
+    {
+      "slug": "ticket_categories",
+      "name": "Ticket Categories",
+      "icon": "Folder",
+      "fields": [
+        { "slug": "name", "name": "Name", "field_type": "text", "required": true },
+        { "slug": "slug", "name": "Slug", "field_type": "text", "required": false }
+      ]
+    },
+    {
+      "slug": "agents",
+      "name": "Agents",
+      "icon": "UserCheck",
+      "fields": [
+        { "slug": "name", "name": "Name", "field_type": "text", "required": true },
+        { "slug": "email", "name": "Email", "field_type": "text", "required": true },
+        { "slug": "status", "name": "Status", "field_type": "select", "required": false, "validation": { "options": ["active", "away"] } }
+      ]
+    },
+    {
+      "slug": "tickets",
+      "name": "Tickets",
+      "icon": "Ticket",
+      "fields": [
+        { "slug": "subject", "name": "Subject", "field_type": "text", "required": true },
+        { "slug": "description", "name": "Description", "field_type": "text", "required": false },
+        {
+          "slug": "customer_id",
+          "name": "Customer",
+          "field_type": "relation",
+          "required": false,
+          "relation_table_slug": "customers"
+        },
+        {
+          "slug": "category_id",
+          "name": "Category",
+          "field_type": "relation",
+          "required": false,
+          "relation_table_slug": "ticket_categories"
+        },
+        {
+          "slug": "agent_id",
+          "name": "Assigned Agent",
+          "field_type": "relation",
+          "required": false,
+          "relation_table_slug": "agents"
+        },
+        {
+          "slug": "status",
+          "name": "Status",
+          "field_type": "select",
+          "required": false,
+          "validation": { "options": ["new", "open", "pending", "resolved", "closed"] }
+        },
+        {
+          "slug": "priority",
+          "name": "Priority",
+          "field_type": "select",
+          "required": false,
+          "validation": { "options": ["low", "medium", "high", "urgent"] }
+        },
+        { "slug": "created_at", "name": "Created At", "field_type": "datetime", "required": false }
+      ]
+    },
+    {
+      "slug": "knowledge_base",
+      "name": "Knowledge Base",
+      "icon": "BookOpen",
+      "fields": [
+        { "slug": "title", "name": "Title", "field_type": "text", "required": true },
+        { "slug": "content", "name": "Content", "field_type": "text", "required": false },
+        {
+          "slug": "category_id",
+          "name": "Category",
+          "field_type": "relation",
+          "required": false,
+          "relation_table_slug": "ticket_categories"
+        },
+        {
+          "slug": "status",
+          "name": "Status",
+          "field_type": "select",
+          "required": false,
+          "validation": { "options": ["draft", "published"] }
+        }
+      ]
+    }
+  ],
+  "reports": [
+    {
+      "name": "Tickets by status",
+      "description": "Count of tickets grouped by status",
+      "config": {
+        "type": "table",
+        "tableSlug": "tickets",
+        "groupBy": ["status"],
+        "aggregates": [{ "field": "id", "fn": "count" }],
+        "sort": "status",
+        "order": "asc",
+        "limit": 50
+      }
+    },
+    {
+      "name": "Tickets by category",
+      "description": "Count of tickets grouped by category",
+      "config": {
+        "type": "table",
+        "tableSlug": "tickets",
+        "groupBy": ["category_id"],
+        "aggregates": [{ "field": "id", "fn": "count" }],
+        "sort": "category_id",
+        "order": "asc",
+        "limit": 50
+      }
+    }
+  ],
+  "workflows": [
+    {
+      "name": "ticket.created → notify agents",
+      "definition": {
+        "nodes": [
+          {
+            "id": "trigger-1",
+            "type": "trigger",
+            "data": { "trigger_type": "event", "trigger_event_type": "ticket.created" },
+            "position": { "x": 0, "y": 0 }
+          },
+          {
+            "id": "email-1",
+            "type": "email",
+            "data": {
+              "to_mode": "users",
+              "users_role_filter": "owner,admin",
+              "subject": "New ticket: {{record.subject}}",
+              "body": "A new support ticket has been created: {{record.subject}}. View in Aurora Studio."
+            },
+            "position": { "x": 240, "y": 0 }
+          }
+        ],
+        "edges": [{ "id": "e1", "source": "trigger-1", "target": "email-1" }]
+      }
+    },
+    {
+      "name": "ticket.escalated → alert",
+      "definition": {
+        "nodes": [
+          {
+            "id": "trigger-1",
+            "type": "trigger",
+            "data": { "trigger_type": "event", "trigger_event_type": "ticket.escalated" },
+            "position": { "x": 0, "y": 0 }
+          },
+          {
+            "id": "email-1",
+            "type": "email",
+            "data": {
+              "to_mode": "users",
+              "users_role_filter": "owner,admin",
+              "subject": "Ticket escalated: {{record.subject}}",
+              "body": "Ticket {{record.subject}} has been escalated. Priority: {{record.priority}}"
+            },
+            "position": { "x": 240, "y": 0 }
+          }
+        ],
+        "edges": [{ "id": "e1", "source": "trigger-1", "target": "email-1" }]
+      }
+    }
+  ]
+}
