@@ -57,9 +57,39 @@ export default async function HomePage() {
   const { ticketsCount, openCount, customersCount, agentsCount, kbCount, recentTickets } = data!;
 
   return (
+    <div className="max-w-7xl mx-auto">
+      {/* Hero */}
+      <section className="relative py-20 sm:py-24 px-4 sm:px-6 overflow-hidden min-h-[280px]">
+        <div className="absolute inset-0 bg-gradient-to-b from-aurora-surface/40 to-transparent" />
+        <div
+          className="absolute inset-0 opacity-40"
+          style={{
+            backgroundImage:
+              "url(https://picsum.photos/seed/aurora-helpdesk-hero/1920/1080)",
+            backgroundSize: "cover",
+            backgroundPosition: "center",
+          }}
+        />
+        <div className="relative z-10 flex flex-col items-center justify-center text-center max-w-4xl mx-auto">
+          <h1 className="text-4xl sm:text-5xl font-bold tracking-tight mb-4 text-white drop-shadow-2xl">
+            Support Hub
+          </h1>
+          <p className="text-lg text-white/90 mb-6 drop-shadow max-w-2xl">
+            Manage tickets, customers, and your knowledge base in one place.
+          </p>
+          <Link
+            href="/submit"
+            className="inline-flex items-center gap-2 px-6 py-3 rounded-component bg-aurora-accent text-aurora-bg font-semibold hover:opacity-90"
+          >
+            <Plus className="w-5 h-5" />
+            Submit Ticket
+          </Link>
+        </div>
+      </section>
+
     <div className="max-w-6xl mx-auto px-4 sm:px-6 py-12">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-6 mb-10">
-        <h1 className="text-3xl font-bold">Dashboard</h1>
+        <h2 className="text-2xl font-bold">Dashboard</h2>
         <Link
           href="/submit"
           className="inline-flex items-center gap-2 px-6 py-3 rounded-component bg-aurora-accent text-aurora-bg font-semibold hover:opacity-90"
@@ -151,6 +181,7 @@ export default async function HomePage() {
           </ul>
         )}
       </div>
+    </div>
     </div>
   );
 }
